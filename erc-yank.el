@@ -53,8 +53,13 @@
   "Automagically create a Gist if pasting more than 5 lines"
   :group 'erc)
 
-(defcustom erc-yank-flood-limit 5
+(defcustom erc-yank-flood-limit-lines 5
   "Maximum number of lines allowed to yank to an erc buffer."
+  :type 'integer
+  :group 'erc-yank)
+
+(defcustom erc-yank-flood-limit-chars 500
+  "Maximum number of chars allowed to yank to an erc buffer."
   :type 'integer
   :group 'erc-yank)
 
@@ -101,8 +106,10 @@
                                    ((listp arg) 0)
                                    ((eq arg '-) -2)
                                    (t (1- arg)))))
+         (chars (length kill-text))
          (lines (length (split-string kill-text "\n"))))
-    (if (and (> lines erc-yank-flood-limit)
+    (if (and (or (> chars erc-yank-flood-limit-chars)
+		 (> lines erc-yank-flood-limit-lines))
              (or (not erc-yank-query-before-gisting)
                  (let ((query
                         (format (concat "Text to yank is %d lines;"
